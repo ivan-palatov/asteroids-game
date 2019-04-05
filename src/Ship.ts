@@ -37,6 +37,9 @@ export class Ship {
   ) {}
 
   public draw() {
+    if (this.rot !== 0) {
+      this.recalcAngle();
+    }
     this.ctx.strokeStyle = this.COLOR;
     this.ctx.lineWidth = this.THICKNESS;
     this.ctx.beginPath();
@@ -56,7 +59,7 @@ export class Ship {
     this.ctx.stroke();
   }
 
-  public turn() {
+  private recalcAngle() {
     this.a += this.rot;
     this.cos = Math.cos(this.a);
     this.sin = Math.sin(this.a);

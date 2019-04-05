@@ -21,10 +21,9 @@ class Game {
 
   public rotateShip(d: -1 | 1) {
     this.ship.rot = (d * ((this.ship.TURN_SPEED / 100) * Math.PI)) / this.FPS;
-    this.ship.turn();
   }
 
-  public stopRotation() {
+  public stopShipRotation() {
     this.ship.rot = 0;
   }
 
@@ -61,14 +60,15 @@ const keyUp = (e: KeyboardEvent) => {
   switch (e.key) {
     case "Left":
     case "ArrowLeft":
-      game.ship.rot = 0;
+      game.stopShipRotation();
       break;
 
     case "Right":
     case "ArrowRight":
-      game.ship.rot = 0;
+      game.stopShipRotation();
       break;
   }
 };
 
 document.addEventListener("keydown", keyDown);
+document.addEventListener("keyup", keyUp);
