@@ -17,6 +17,16 @@ class Game {
     this.drawBackground();
     this.ship.update();
     this.ship.draw();
+    // draw lasers
+    for (let i = this.ship.lasers.length - 1; i >= 0; i--) {
+      const laser = this.ship.lasers[i];
+      laser.update();
+      laser.draw();
+      if (laser.dist > laser.DIST * this.canv.width) {
+        this.ship.lasers.splice(i, 1);
+        continue;
+      }
+    }
     setTimeout(this.start.bind(this), this.interval);
   }
 
@@ -46,6 +56,9 @@ const keyDown = (e: KeyboardEvent) => {
     case "ArrowUp":
       game.ship.thrusting = true;
       break;
+    case " ":
+      game.ship.shoot();
+      break;
   }
 };
 
@@ -58,7 +71,6 @@ const keyUp = (e: KeyboardEvent) => {
     case "ArrowLeft":
       game.ship.rot = 0;
       break;
-
     case "Right":
     case "ArrowRight":
       game.ship.rot = 0;
@@ -66,6 +78,9 @@ const keyUp = (e: KeyboardEvent) => {
     case "Up":
     case "ArrowUp":
       game.ship.thrusting = false;
+      break;
+    case " ":
+      game.ship.canShoot = true;
       break;
   }
 };

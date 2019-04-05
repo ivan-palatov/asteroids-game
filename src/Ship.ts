@@ -1,3 +1,5 @@
+import { Laser } from "./Laser";
+
 interface IThrust {
   x: number;
   y: number;
@@ -15,7 +17,7 @@ export class Ship {
   public blinkTime: number = Math.ceil(this.BLINK_DURATION * this.FPS);
   public blinkNum: number = Math.ceil(this.INV_DURATION / this.BLINK_DURATION);
   public canShoot: boolean = true;
-  public lasers: any[] = []; // TODO: change type
+  public lasers: Laser[] = [];
   public dead: boolean = false;
   public cos: number = Math.cos(this.a);
   public sin: number = Math.sin(this.a);
@@ -31,10 +33,11 @@ export class Ship {
     public readonly TURN_SPEED: number = 180,
     private readonly THRUST: number = 5,
     private readonly FRICTION: number = 0.7,
+    private COLOR: string = "#fff",
     private readonly EXPLODE_DURATION: number = 10,
     private readonly INV_DURATION: number = 3,
     private readonly BLINK_DURATION: number = 0.1,
-    private COLOR: string = "#fff"
+    private readonly MAX_LASERS: number = 10
   ) {}
 
   public draw() {
@@ -69,9 +72,17 @@ export class Ship {
     } else {
       this.slowDown();
     }
+    this.move();
+  }
 
-    this.x += this.thrust.x;
-    this.y += this.thrust.y;
+  public shoot() {
+    if (!this.canShoot || this.MAX_LASERS <= this.lasers.length || this.dead) {
+      return;
+    }
+    this.lasers.push(
+      new Laser(this.x, this.y, this.cos, this.sin, this.canv, this.ctx)
+    );
+    this.canShoot = false;
   }
 
   private recalcAngle() {
@@ -90,6 +101,22 @@ export class Ship {
   private slowDown() {
     this.thrust.x -= (this.FRICTION * this.thrust.x) / this.FPS;
     this.thrust.y -= (this.FRICTION * this.thrust.y) / this.FPS;
+  }
+
+  private move() {
+    this.x += this.thrust.x;
+    this.y += this.thrust.y;
+    // Handle edge of screen
+    if (this.x < 0 - this.r) {
+      this.x = this.canv.width + this.r;
+    } else if (this.x > this.canv.width + this.r) {
+      this.x = 0 - this.r;
+    }
+    if (this.y < 0 - this.r) {
+      this.y = this.canv.height + this.r;
+    } else if (this.y > this.canv.height + this.r) {
+      this.y = 0 - this.r;
+    }
   }
 
   private drawThruster() {
