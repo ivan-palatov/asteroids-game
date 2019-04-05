@@ -30,6 +30,7 @@ export class Ship {
     private readonly SIZE: number = 30,
     public readonly TURN_SPEED: number = 180,
     private readonly THRUST: number = 5,
+    private readonly FRICTION: number = 0.7,
     private readonly EXPLODE_DURATION: number = 10,
     private readonly INV_DURATION: number = 3,
     private readonly BLINK_DURATION: number = 0.1,
@@ -37,9 +38,6 @@ export class Ship {
   ) {}
 
   public draw() {
-    if (this.rot !== 0) {
-      this.recalcAngle();
-    }
     this.ctx.strokeStyle = this.COLOR;
     this.ctx.lineWidth = this.THICKNESS;
     this.ctx.beginPath();
@@ -57,6 +55,23 @@ export class Ship {
     );
     this.ctx.closePath();
     this.ctx.stroke();
+    if (this.thrusting) {
+      this.drawThruster();
+    }
+  }
+
+  public update() {
+    if (this.rot !== 0) {
+      this.recalcAngle();
+    }
+    if (this.thrusting) {
+      this.thrustShip();
+    } else {
+      this.slowDown();
+    }
+
+    this.x += this.thrust.x;
+    this.y += this.thrust.y;
   }
 
   private recalcAngle() {
@@ -65,5 +80,37 @@ export class Ship {
     this.sin = Math.sin(this.a);
     this.sinMinCos = Math.sin(this.a) - Math.cos(this.a);
     this.sinPlusCos = Math.sin(this.a) + Math.cos(this.a);
+  }
+
+  private thrustShip() {
+    this.thrust.x += (this.THRUST * this.cos) / this.FPS;
+    this.thrust.y -= (this.THRUST * this.sin) / this.FPS;
+  }
+
+  private slowDown() {
+    this.thrust.x -= (this.FRICTION * this.thrust.x) / this.FPS;
+    this.thrust.y -= (this.FRICTION * this.thrust.y) / this.FPS;
+  }
+
+  private drawThruster() {
+    this.ctx.fillStyle = "#ffb366";
+    this.ctx.strokeStyle = "#ffff80";
+    this.ctx.lineWidth = this.SIZE / 10;
+    this.ctx.beginPath();
+    this.ctx.moveTo(
+      this.x - this.r * ((2 / 3) * this.cos + 0.5 * this.sin),
+      this.y + this.r * ((2 / 3) * this.sin - 0.5 * this.cos)
+    );
+    this.ctx.lineTo(
+      this.x - this.r * (5 / 3) * this.cos,
+      this.y + this.r * (5 / 3) * this.sin
+    );
+    this.ctx.lineTo(
+      this.x - this.r * ((2 / 3) * this.cos - 0.5 * this.sin),
+      this.y + this.r * ((2 / 3) * this.sin + 0.5 * this.cos)
+    );
+    this.ctx.closePath();
+    this.ctx.fill();
+    this.ctx.stroke();
   }
 }

@@ -6,7 +6,7 @@ class Game {
   private ctx: CanvasRenderingContext2D;
   private interval: number;
 
-  constructor(private readonly FPS: number = 30) {
+  constructor(public readonly FPS: number = 30) {
     this.canv = document.getElementById("game") as HTMLCanvasElement;
     this.ctx = this.canv.getContext("2d")!;
     this.interval = 1000 / this.FPS;
@@ -15,16 +15,9 @@ class Game {
 
   public start() {
     this.drawBackground();
+    this.ship.update();
     this.ship.draw();
     setTimeout(this.start.bind(this), this.interval);
-  }
-
-  public rotateShip(d: -1 | 1) {
-    this.ship.rot = (d * ((this.ship.TURN_SPEED / 100) * Math.PI)) / this.FPS;
-  }
-
-  public stopShipRotation() {
-    this.ship.rot = 0;
   }
 
   private drawBackground() {
@@ -43,12 +36,15 @@ const keyDown = (e: KeyboardEvent) => {
   switch (e.key) {
     case "Left":
     case "ArrowLeft":
-      game.rotateShip(1);
+      game.ship.rot = ((game.ship.TURN_SPEED / 100) * Math.PI) / game.FPS;
       break;
-
     case "Right":
     case "ArrowRight":
-      game.rotateShip(-1);
+      game.ship.rot = -((game.ship.TURN_SPEED / 100) * Math.PI) / game.FPS;
+      break;
+    case "Up":
+    case "ArrowUp":
+      game.ship.thrusting = true;
       break;
   }
 };
@@ -60,12 +56,16 @@ const keyUp = (e: KeyboardEvent) => {
   switch (e.key) {
     case "Left":
     case "ArrowLeft":
-      game.stopShipRotation();
+      game.ship.rot = 0;
       break;
 
     case "Right":
     case "ArrowRight":
-      game.stopShipRotation();
+      game.ship.rot = 0;
+      break;
+    case "Up":
+    case "ArrowUp":
+      game.ship.thrusting = false;
       break;
   }
 };
