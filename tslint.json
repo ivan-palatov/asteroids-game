@@ -1,0 +1,11 @@
+{
+  "extends": ["tslint:latest", "tslint-config-prettier"],
+  "rules": {
+    "arrow-return-shorthand": true,
+    "await-promise": true,
+    "class-name": true,
+    "jsdoc-format": true,
+    "object-literal-sort-keys": false,
+    "no-console": false
+  }
+}

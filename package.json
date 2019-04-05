@@ -1,0 +1,16 @@
+{
+  "name": "asteroids",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "devDependencies": {
+    "parcel-bundler": "^1.12.3",
+    "rimraf": "^2.6.3",
+    "tslint": "^5.15.0",
+    "tslint-config-prettier": "^1.18.0",
+    "typescript": "^3.4.1"
+  },
+  "scripts": {
+    "start": "parcel index.html"
+  }
+}
