@@ -49,10 +49,6 @@ export class Laser {
   }
 
   public update() {
-    this.move();
-  }
-
-  private move() {
     this.x += this.xv;
     this.y += this.yv;
     // calculate the distance traveled
