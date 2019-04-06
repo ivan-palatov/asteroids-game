@@ -3,13 +3,20 @@ import { Ship } from "./Ship";
 
 class Game {
   public ship: Ship;
+
+  public lvl: number = -1;
+  public score: number = 0;
+
   private canv: HTMLCanvasElement;
   private ctx: CanvasRenderingContext2D;
   private interval: number;
-  private asteorids: Asteroid[] = [];
+  private asteroids: Asteroid[] = [];
   private readonly ASTEROIDS_AMOUNT: number = 3;
   private readonly ASTEROIDS_SIZE: number = 100;
-  private lvl: number = 0;
+  private readonly ASTEROIDS_PTS_LGE: number = 20;
+  private readonly ASTEROIDS_PTS_MED: number = 50;
+  private readonly ASTEROIDS_PTS_SML: number = 100;
+  private readonly LASER_EXPLODE_DUR: number = 0.1;
 
   constructor(public readonly FPS: number = 30) {
     this.canv = document.getElementById("game") as HTMLCanvasElement;
@@ -29,7 +36,7 @@ class Game {
     this.ship.draw();
 
     // draw asteroids
-    this.asteorids.forEach(asteroid => {
+    this.asteroids.forEach(asteroid => {
       asteroid.update();
       asteroid.draw();
     });
@@ -50,8 +57,21 @@ class Game {
       }
       laser.update();
       laser.draw();
-      // TODO: add asteroids collision check here
-      // if (laser.explodeTime === 0 && this.distBetweenPoints(laser.x,laser.y,asteroid.x,asteroid.y) < asteroid.r)
+      for (let j = this.asteroids.length - 1; j >= 0; j--) {
+        if (
+          laser.explodeTime === 0 &&
+          this.distBetweenPoints(
+            laser.x,
+            laser.y,
+            this.asteroids[j].x,
+            this.asteroids[j].y
+          ) < this.asteroids[j].r
+        ) {
+          this.destroyAsteroid(j);
+          laser.explodeTime = Math.ceil(this.LASER_EXPLODE_DUR * this.FPS);
+          break;
+        }
+      }
     }
 
     setTimeout(this.drawAndUpdate.bind(this), this.interval);
@@ -77,7 +97,7 @@ class Game {
         this.distBetweenPoints(this.ship.x, this.ship.y, x, y) <
         this.ASTEROIDS_SIZE * 2 + this.ship.r
       );
-      this.asteorids.push(
+      this.asteroids.push(
         new Asteroid(
           x,
           y,
@@ -90,7 +110,37 @@ class Game {
     }
   }
 
+  private destroyAsteroid(i: number) {
+    const { x, y, r } = this.asteroids[i];
+
+    // Split asteroid in two if large enough
+    if (r === Math.ceil(this.ASTEROIDS_SIZE / 2)) {
+      this.asteroids.push(
+        new Asteroid(x, y, r / 2, this.lvl, this.canv, this.ctx),
+        new Asteroid(x, y, r / 2, this.lvl, this.canv, this.ctx)
+      );
+      this.score += this.ASTEROIDS_PTS_LGE;
+    } else if (r === Math.ceil(this.ASTEROIDS_SIZE / 4)) {
+      this.asteroids.push(
+        new Asteroid(x, y, r / 2, this.lvl, this.canv, this.ctx),
+        new Asteroid(x, y, r / 2, this.lvl, this.canv, this.ctx)
+      );
+      this.score += this.ASTEROIDS_PTS_MED;
+    } else {
+      this.score += this.ASTEROIDS_PTS_SML;
+    }
+
+    // destroy asteroid
+    this.asteroids.splice(i, 1);
+
+    // new level if asteroids no mo
+    if (this.asteroids.length === 0) {
+      this.nextLevel();
+    }
+  }
+
   private nextLevel() {
+    this.lvl++;
     this.createAsteroids();
   }
 }

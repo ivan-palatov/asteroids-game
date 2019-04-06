@@ -85,6 +85,10 @@ export class Ship {
     this.canShoot = false;
   }
 
+  public destroy() {
+    this.explodeTime = Math.ceil(this.EXPLODE_DURATION * this.FPS);
+  }
+
   private recalcAngle() {
     this.a += this.rot;
     this.cos = Math.cos(this.a);

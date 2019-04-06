@@ -49,6 +49,9 @@ export class Laser {
   }
 
   public update() {
+    if (this.explodeTime > 0) {
+      return;
+    }
     this.x += this.xv;
     this.y += this.yv;
     // calculate the distance traveled
