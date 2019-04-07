@@ -24,6 +24,9 @@ class Game {
   private text: string = '';
   private textOpacity: number = 0;
 
+  private readonly COS: number = Math.cos(Math.PI / 3);
+  private readonly SIN: number = Math.sin(Math.PI / 3);
+
   constructor(public readonly FPS: number = 30) {
     this.canv = document.getElementById('game') as HTMLCanvasElement;
     this.ctx = this.canv.getContext('2d')!;
@@ -46,6 +49,10 @@ class Game {
       this.ship.update();
       this.ship.draw();
     } else if (this.ship.explodeTime > 0) {
+      // Reduse lives at the last frame
+      if (this.ship.explodeTime === 1) {
+        this.lives--;
+      }
       // Draw end game text
       if (this.lives === 0) {
         this.text = 'Game Over';
@@ -103,6 +110,9 @@ class Game {
     this.drawScore(this.score, 'right');
     this.drawScore(this.record, 'center');
 
+    // Draw lives
+    this.drawLives();
+
     // recursion
     setTimeout(this.drawAndUpdate.bind(this), this.interval);
   }
@@ -138,6 +148,26 @@ class Game {
     this.textOpacity -= 1 / this.TEXT_FADE_TIME / this.FPS;
   }
 
+  private drawLives() {
+    for (let i = 0; i < this.lives; i++) {
+      this.ctx.strokeStyle =
+        this.ship.explodeTime > 0 && i === this.lives - 1 ? '#f00' : '#fff';
+      this.ctx.lineWidth = 1.5;
+      this.ctx.beginPath();
+      this.ctx.moveTo(30 + i * 36 + 15 * this.COS, 35 - 15 * this.SIN);
+      this.ctx.lineTo(
+        30 + i * 36 - 15 * (this.SIN + this.COS),
+        35 + 15 * (this.SIN - this.COS)
+      );
+      this.ctx.lineTo(
+        30 + i * 36 + 15 * (this.SIN - this.COS),
+        35 + 15 * (this.SIN + this.COS)
+      );
+      this.ctx.closePath();
+      this.ctx.stroke();
+    }
+  }
+
   private handleLaserCollision(i: number) {
     for (let j = this.ship.lasers.length - 1; j >= 0; j--) {
       const laser = this.ship.lasers[j];
@@ -171,7 +201,6 @@ class Game {
         this.ship.r + this.asteroids[i].r
     ) {
       this.ship.destroy();
-      this.lives--;
       this.destroyAsteroid(i);
       return true;
     }
