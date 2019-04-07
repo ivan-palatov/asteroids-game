@@ -6,6 +6,7 @@ class Game {
 
   public lvl: number = -1;
   public score: number = 0;
+  public lives: number = 3;
 
   private canv: HTMLCanvasElement;
   private ctx: CanvasRenderingContext2D;
@@ -32,14 +33,31 @@ class Game {
 
   private drawAndUpdate() {
     this.drawBackground();
-    this.ship.update();
-    this.ship.draw();
+
+    // draw the ship
+    if (!this.ship.dead) {
+      // if ship is alive, update its properties and draw
+      this.ship.update();
+      this.ship.draw();
+    } else if (this.ship.explodeTime > 0) {
+      // if ship is dead and still exploding, draw explosion and decrease explodeTime
+      this.ship.explodeTime--;
+      this.ship.drawExplosion();
+    } else {
+      // if ship is dead and is no longer exploding, spawn a new ship
+      this.ship = new Ship(this.canv, this.ctx, this.FPS);
+    }
 
     // draw asteroids
-    this.asteroids.forEach(asteroid => {
-      asteroid.update();
-      asteroid.draw();
-    });
+    for (let i = this.asteroids.length - 1; i >= 0; i--) {
+      this.asteroids[i].update();
+      this.asteroids[i].draw();
+      const deleted = this.handleLaserCollision(i);
+      if (deleted) {
+        continue;
+      }
+      this.handleShipCollision(i);
+    }
 
     // draw lasers
     for (let i = this.ship.lasers.length - 1; i >= 0; i--) {
@@ -57,24 +75,49 @@ class Game {
       }
       laser.update();
       laser.draw();
-      for (let j = this.asteroids.length - 1; j >= 0; j--) {
-        if (
-          laser.explodeTime === 0 &&
-          this.distBetweenPoints(
-            laser.x,
-            laser.y,
-            this.asteroids[j].x,
-            this.asteroids[j].y
-          ) < this.asteroids[j].r
-        ) {
-          this.destroyAsteroid(j);
-          laser.explodeTime = Math.ceil(this.LASER_EXPLODE_DUR * this.FPS);
-          break;
-        }
-      }
     }
 
+    // recursion
     setTimeout(this.drawAndUpdate.bind(this), this.interval);
+  }
+
+  private handleLaserCollision(i: number) {
+    for (let j = this.ship.lasers.length - 1; j >= 0; j--) {
+      const laser = this.ship.lasers[j];
+      if (
+        laser.explodeTime === 0 &&
+        this.distBetweenPoints(
+          laser.x,
+          laser.y,
+          this.asteroids[i].x,
+          this.asteroids[i].y
+        ) < this.asteroids[i].r
+      ) {
+        this.destroyAsteroid(i);
+        laser.explodeTime = Math.ceil(this.LASER_EXPLODE_DUR * this.FPS);
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private handleShipCollision(i: number) {
+    if (
+      this.ship.blinkNum === 0 &&
+      !this.ship.dead &&
+      this.distBetweenPoints(
+        this.ship.x,
+        this.ship.y,
+        this.asteroids[i].x,
+        this.asteroids[i].y
+      ) <
+        this.ship.r + this.asteroids[i].r
+    ) {
+      this.ship.destroy();
+      this.destroyAsteroid(i);
+      return true;
+    }
+    return false;
   }
 
   private drawBackground() {

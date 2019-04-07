@@ -34,13 +34,16 @@ export class Ship {
     private readonly THRUST: number = 5,
     private readonly FRICTION: number = 0.7,
     private COLOR: string = "#fff",
-    private readonly EXPLODE_DURATION: number = 10,
+    private readonly EXPLODE_DURATION: number = 1,
     private readonly INV_DURATION: number = 3,
-    private readonly BLINK_DURATION: number = 0.1,
+    private readonly BLINK_DURATION: number = 0.2,
     private readonly MAX_LASERS: number = 10
   ) {}
 
   public draw() {
+    if (this.blinkNum % 2 === 1) {
+      return;
+    }
     this.ctx.strokeStyle = this.COLOR;
     this.ctx.lineWidth = this.THICKNESS;
     this.ctx.beginPath();
@@ -73,6 +76,11 @@ export class Ship {
       this.slowDown();
     }
     this.move();
+
+    // handle blinking
+    if (this.blinkNum > 0) {
+      this.handleBlinking();
+    }
   }
 
   public shoot() {
@@ -87,6 +95,30 @@ export class Ship {
 
   public destroy() {
     this.explodeTime = Math.ceil(this.EXPLODE_DURATION * this.FPS);
+    this.dead = true;
+  }
+
+  public drawExplosion() {
+    this.drawExplosionCircle("#990000", this.r * 1.8);
+    this.drawExplosionCircle("#f00", this.r * 1.5);
+    this.drawExplosionCircle("#ff9900", this.r * 1.2);
+    this.drawExplosionCircle("#ffff00", this.r * 0.8);
+    this.drawExplosionCircle("#fff", this.r * 0.3);
+  }
+
+  private handleBlinking() {
+    this.blinkTime--;
+    if (this.blinkTime === 0) {
+      this.blinkTime = Math.ceil(this.BLINK_DURATION * this.FPS);
+      this.blinkNum--;
+    }
+  }
+
+  private drawExplosionCircle(color: string, r: number) {
+    this.ctx.fillStyle = color;
+    this.ctx.beginPath();
+    this.ctx.arc(this.x, this.y, r, 0, Math.PI * 2, false);
+    this.ctx.fill();
   }
 
   private recalcAngle() {
