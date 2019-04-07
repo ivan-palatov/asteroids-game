@@ -27,21 +27,21 @@ export class Laser {
   public draw() {
     if (this.explodeTime === 0) {
       // draw laser
-      this.ctx.fillStyle = "salmon";
+      this.ctx.fillStyle = 'salmon';
       this.ctx.beginPath();
       this.ctx.arc(this.x, this.y, this.SIZE, 0, Math.PI * 2);
       this.ctx.fill();
     } else {
       // draw explosion
-      this.ctx.fillStyle = "orangered";
+      this.ctx.fillStyle = 'orangered';
       this.ctx.beginPath();
       this.ctx.arc(this.x, this.y, 15 * 0.75, 0, Math.PI * 2);
       this.ctx.fill();
-      this.ctx.fillStyle = "salmon";
+      this.ctx.fillStyle = 'salmon';
       this.ctx.beginPath();
       this.ctx.arc(this.x, this.y, 15 * 0.5, 0, Math.PI * 2);
       this.ctx.fill();
-      this.ctx.fillStyle = "pink";
+      this.ctx.fillStyle = 'pink';
       this.ctx.beginPath();
       this.ctx.arc(this.x, this.y, 15 * 0.25, 0, Math.PI * 2);
       this.ctx.fill();

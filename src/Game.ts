@@ -1,5 +1,5 @@
-import { Asteroid } from "./Asteroid";
-import { Ship } from "./Ship";
+import { Asteroid } from './Asteroid';
+import { Ship } from './Ship';
 
 class Game {
   public ship: Ship;
@@ -7,6 +7,7 @@ class Game {
   public lvl: number = -1;
   public score: number = 0;
   public lives: number = 3;
+  public record: number;
 
   private canv: HTMLCanvasElement;
   private ctx: CanvasRenderingContext2D;
@@ -18,12 +19,17 @@ class Game {
   private readonly ASTEROIDS_PTS_MED: number = 50;
   private readonly ASTEROIDS_PTS_SML: number = 100;
   private readonly LASER_EXPLODE_DUR: number = 0.1;
+  private readonly TEXT_FADE_TIME: number = 2.5;
+  private readonly TEXT_SIZE: number = 40;
+  private text: string = '';
+  private textOpacity: number = 0;
 
   constructor(public readonly FPS: number = 30) {
-    this.canv = document.getElementById("game") as HTMLCanvasElement;
-    this.ctx = this.canv.getContext("2d")!;
+    this.canv = document.getElementById('game') as HTMLCanvasElement;
+    this.ctx = this.canv.getContext('2d')!;
     this.interval = 1000 / this.FPS;
     this.ship = new Ship(this.canv, this.ctx, this.FPS);
+    this.record = parseInt(localStorage.getItem('record') || '0', 10);
   }
 
   public start() {
@@ -40,12 +46,25 @@ class Game {
       this.ship.update();
       this.ship.draw();
     } else if (this.ship.explodeTime > 0) {
+      // Draw end game text
+      if (this.lives === 0) {
+        this.text = 'Game Over';
+        this.textOpacity = 1.0;
+      }
       // if ship is dead and still exploding, draw explosion and decrease explodeTime
       this.ship.explodeTime--;
       this.ship.drawExplosion();
-    } else {
+    } else if (this.lives > 0) {
       // if ship is dead and is no longer exploding, spawn a new ship
       this.ship = new Ship(this.canv, this.ctx, this.FPS);
+    } else {
+      // if no lives left, save record(if needed) and start a new game
+      if (this.score > this.record) {
+        localStorage.setItem('record', `${this.score}`);
+      }
+      this.restart();
+      this.text = `Level ${this.lvl}`;
+      this.textOpacity = 1.0;
     }
 
     // draw asteroids
@@ -77,8 +96,29 @@ class Game {
       laser.draw();
     }
 
+    // Draw text
+    this.drawGameText();
+
     // recursion
     setTimeout(this.drawAndUpdate.bind(this), this.interval);
+  }
+
+  private restart() {
+    this.lvl = 0;
+    this.score = 0;
+    this.record = parseInt(localStorage.getItem('record') || '0', 10);
+    this.lives = 3;
+    this.ship = new Ship(this.canv, this.ctx, this.FPS);
+    this.createAsteroids();
+  }
+
+  private drawGameText() {
+    this.ctx.textAlign = 'center';
+    this.ctx.textBaseline = 'middle';
+    this.ctx.fillStyle = `rgba(255,255,255,${this.textOpacity})`;
+    this.ctx.font = `small-caps ${this.TEXT_SIZE}px dejavu sans mono`;
+    this.ctx.fillText(this.text, this.canv.width / 2, this.canv.height * 0.25);
+    this.textOpacity -= 1 / this.TEXT_FADE_TIME / this.FPS;
   }
 
   private handleLaserCollision(i: number) {
@@ -114,6 +154,7 @@ class Game {
         this.ship.r + this.asteroids[i].r
     ) {
       this.ship.destroy();
+      this.lives--;
       this.destroyAsteroid(i);
       return true;
     }
@@ -121,7 +162,7 @@ class Game {
   }
 
   private drawBackground() {
-    this.ctx.fillStyle = "#001";
+    this.ctx.fillStyle = '#001';
     this.ctx.fillRect(0, 0, this.canv.width, this.canv.height);
   }
 
@@ -132,6 +173,7 @@ class Game {
   private createAsteroids() {
     let x: number;
     let y: number;
+    this.asteroids = [];
     for (let i = 0; i < this.ASTEROIDS_AMOUNT + this.lvl; i++) {
       do {
         x = Math.floor(Math.random() * this.canv.width);
@@ -185,6 +227,8 @@ class Game {
   private nextLevel() {
     this.lvl++;
     this.createAsteroids();
+    this.text = `Level ${this.lvl}`;
+    this.textOpacity = 1.0;
   }
 }
 
@@ -196,19 +240,19 @@ const keyDown = (e: KeyboardEvent) => {
     return;
   }
   switch (e.key) {
-    case "Left":
-    case "ArrowLeft":
+    case 'Left':
+    case 'ArrowLeft':
       game.ship.rot = ((game.ship.TURN_SPEED / 100) * Math.PI) / game.FPS;
       break;
-    case "Right":
-    case "ArrowRight":
+    case 'Right':
+    case 'ArrowRight':
       game.ship.rot = -((game.ship.TURN_SPEED / 100) * Math.PI) / game.FPS;
       break;
-    case "Up":
-    case "ArrowUp":
+    case 'Up':
+    case 'ArrowUp':
       game.ship.thrusting = true;
       break;
-    case " ":
+    case ' ':
       game.ship.shoot();
       break;
   }
@@ -219,23 +263,23 @@ const keyUp = (e: KeyboardEvent) => {
     return;
   }
   switch (e.key) {
-    case "Left":
-    case "ArrowLeft":
+    case 'Left':
+    case 'ArrowLeft':
       game.ship.rot = 0;
       break;
-    case "Right":
-    case "ArrowRight":
+    case 'Right':
+    case 'ArrowRight':
       game.ship.rot = 0;
       break;
-    case "Up":
-    case "ArrowUp":
+    case 'Up':
+    case 'ArrowUp':
       game.ship.thrusting = false;
       break;
-    case " ":
+    case ' ':
       game.ship.canShoot = true;
       break;
   }
 };
 
-document.addEventListener("keydown", keyDown);
-document.addEventListener("keyup", keyUp);
+document.addEventListener('keydown', keyDown);
+document.addEventListener('keyup', keyUp);

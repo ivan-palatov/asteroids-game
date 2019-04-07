@@ -1,4 +1,4 @@
-import { Laser } from "./Laser";
+import { Laser } from './Laser';
 
 interface IThrust {
   x: number;
@@ -33,7 +33,7 @@ export class Ship {
     public readonly TURN_SPEED: number = 180,
     private readonly THRUST: number = 5,
     private readonly FRICTION: number = 0.7,
-    private COLOR: string = "#fff",
+    private COLOR: string = '#fff',
     private readonly EXPLODE_DURATION: number = 1,
     private readonly INV_DURATION: number = 3,
     private readonly BLINK_DURATION: number = 0.2,
@@ -99,11 +99,11 @@ export class Ship {
   }
 
   public drawExplosion() {
-    this.drawExplosionCircle("#990000", this.r * 1.8);
-    this.drawExplosionCircle("#f00", this.r * 1.5);
-    this.drawExplosionCircle("#ff9900", this.r * 1.2);
-    this.drawExplosionCircle("#ffff00", this.r * 0.8);
-    this.drawExplosionCircle("#fff", this.r * 0.3);
+    this.drawExplosionCircle('#990000', this.r * 1.8);
+    this.drawExplosionCircle('#f00', this.r * 1.5);
+    this.drawExplosionCircle('#ff9900', this.r * 1.2);
+    this.drawExplosionCircle('#ffff00', this.r * 0.8);
+    this.drawExplosionCircle('#fff', this.r * 0.3);
   }
 
   private handleBlinking() {
@@ -156,8 +156,8 @@ export class Ship {
   }
 
   private drawThruster() {
-    this.ctx.fillStyle = "#ffb366";
-    this.ctx.strokeStyle = "#ffff80";
+    this.ctx.fillStyle = '#ffb366';
+    this.ctx.strokeStyle = '#ffff80';
     this.ctx.lineWidth = this.SIZE / 10;
     this.ctx.beginPath();
     this.ctx.moveTo(

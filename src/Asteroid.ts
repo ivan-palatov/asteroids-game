@@ -15,7 +15,7 @@ export class Asteroid {
     private readonly FPS: number = 30,
     private readonly INITIAL_SPEED: number = 50,
     private readonly THICKNESS: number = 1.5,
-    private readonly COLOR: string = "#ddd",
+    private readonly COLOR: string = '#ddd',
     private readonly MAX_VERT: number = 10,
     private readonly JAG: number = 0.3
   ) {
