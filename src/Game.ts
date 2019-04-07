@@ -99,6 +99,10 @@ class Game {
     // Draw text
     this.drawGameText();
 
+    // Draw score
+    this.drawScore(this.score, 'right');
+    this.drawScore(this.record, 'center');
+
     // recursion
     setTimeout(this.drawAndUpdate.bind(this), this.interval);
   }
@@ -118,6 +122,19 @@ class Game {
     this.ctx.fillStyle = `rgba(255,255,255,${this.textOpacity})`;
     this.ctx.font = `small-caps ${this.TEXT_SIZE}px dejavu sans mono`;
     this.ctx.fillText(this.text, this.canv.width / 2, this.canv.height * 0.25);
+    this.textOpacity -= 1 / this.TEXT_FADE_TIME / this.FPS;
+  }
+
+  private drawScore(score: number, align: 'center' | 'right') {
+    this.ctx.textAlign = align;
+    this.ctx.textBaseline = 'middle';
+    this.ctx.fillStyle = `#fff`;
+    this.ctx.font = `${this.TEXT_SIZE}px dejavu sans mono`;
+    this.ctx.fillText(
+      `${score}`,
+      align === 'right' ? this.canv.width - 15 : this.canv.width / 2,
+      35
+    );
     this.textOpacity -= 1 / this.TEXT_FADE_TIME / this.FPS;
   }
 
