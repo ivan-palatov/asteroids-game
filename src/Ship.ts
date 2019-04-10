@@ -21,8 +21,6 @@ export class Ship {
   public dead: boolean = false;
   public cos: number = Math.cos(this.a);
   public sin: number = Math.sin(this.a);
-  public sinMinCos: number = Math.sin(this.a) - Math.cos(this.a);
-  public sinPlusCos: number = Math.sin(this.a) + Math.cos(this.a);
   private readonly THICKNESS: number = this.SIZE / 20;
 
   constructor(
@@ -52,12 +50,12 @@ export class Ship {
       this.y - (4 / 3) * this.r * this.sin
     );
     this.ctx.lineTo(
-      this.x - this.r * ((2 / 3) * this.sinPlusCos),
-      this.y + this.r * ((2 / 3) * this.sinMinCos)
+      this.x - this.r * ((2 / 3) * this.cos + this.sin),
+      this.y + this.r * ((2 / 3) * this.sin - this.cos)
     );
     this.ctx.lineTo(
-      this.x + this.r * ((2 / 3) * this.sinMinCos),
-      this.y + this.r * ((2 / 3) * this.sinPlusCos)
+      this.x - this.r * ((2 / 3) * this.cos - this.sin),
+      this.y + this.r * ((2 / 3) * this.sin + this.cos)
     );
     this.ctx.closePath();
     this.ctx.stroke();
@@ -125,8 +123,6 @@ export class Ship {
     this.a += this.rot;
     this.cos = Math.cos(this.a);
     this.sin = Math.sin(this.a);
-    this.sinMinCos = Math.sin(this.a) - Math.cos(this.a);
-    this.sinPlusCos = Math.sin(this.a) + Math.cos(this.a);
   }
 
   private thrustShip() {
