@@ -11,6 +11,13 @@
     "typescript": "^3.4.1"
   },
   "scripts": {
-    "start": "parcel index.html"
-  }
+    "start": "parcel index.html",
+    "prod": "rimraf dist && parcel build index.html --experimental-scope-hoisting"
+  },
+  "browserslist": [
+    ">1%",
+    "not dead",
+    "not ie <= 11",
+    "not op_mini all"
+  ]
 }
